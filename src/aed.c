@@ -1,3 +1,9 @@
+/*
+ The way this program works is simple, its just a linked list with
+ all lines stored in a seperate node, which makes it easy to insert
+ and remove lines.
+ */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
@@ -5,32 +11,35 @@
 #include <errno.h>
 
 #define PRINT_SIZE 255
-#undef BUFSIZ
+#undef BUFSIZ /*How disastrous could this possibly be*/
 #define BUFSIZ 1024
 
-struct new_line{
-    struct new_line* next;
-    struct new_line* prev;
+/**/
+struct text_line{
+    struct text_line* next;
+    struct text_line* prev;
     char text[BUFSIZ];
 };
 
-
+/**/
 bool print_linenum = false;
 bool auto_print = false;
+
 long line_num = 1l;
 FILE* f_in = NULL;
-struct new_line* head = NULL;
+struct text_line* head = NULL;
 char clipboard[BUFSIZ] = {'\n', 0};
 
+/**/
 int edit(void);
 void init_file(void);
 
-int insert_line(struct new_line* left, struct new_line* right, struct new_line* insert);
-int delete_line(struct new_line** cur_line, char commands[16]);
-void change_line(struct new_line** cur_line, long amount);
-void swap_line(struct new_line* cur_line, char commands[16]);
-void print_line(struct new_line* cur_line, char commands[16]);
-void jump_line(struct new_line** cur_line, char commands[16]);
+int insert_line(struct text_line* left, struct text_line* right, struct text_line* insert);
+int delete_line(struct text_line** cur_line, char commands[16]);
+void change_line(struct text_line** cur_line, long amount);
+void swap_line(struct text_line* cur_line, char commands[16]);
+void print_line(struct text_line* cur_line, char commands[16]);
+void jump_line(struct text_line** cur_line, char commands[16]);
 
 void switch_bool(bool* b);
 long read_number(unsigned start, char commands[16]);
@@ -81,15 +90,15 @@ int main(int argc, char **argv)
     return 0;
 }
 
-void print_line(struct new_line* cur_line, char commands[16]){
+void print_line(struct text_line* cur_line, char commands[16]){
     long number = 0, local_linenum = line_num;
-    bool local_p_linenum = print_linenum;
+    bool p_ln_local = print_linenum;
     bool surround_print = false;
     int i;
     
     for(i = 1; i < 16 && commands[i] != '\0'; i++){
         if(commands[i] == 'n'){
-            local_p_linenum = true;
+            p_ln_local = true;
         }
         if(commands[i] == 's'){
             surround_print = true;
@@ -113,7 +122,7 @@ void print_line(struct new_line* cur_line, char commands[16]){
     
     for(i = 0; i < number && cur_line != NULL; i++){
         
-        if(local_p_linenum == true){
+        if(p_ln_local == true){
             printf("%3ld", local_linenum + i);
         }
         if(local_linenum+i == line_num){
@@ -136,7 +145,7 @@ void switch_bool(bool* b){
     }
 }
 
-void swap_line(struct new_line* cur_line, char commands[16]){
+void swap_line(struct text_line* cur_line, char commands[16]){
     int i = 0;
     bool auto_print_temp = auto_print;
     long line_tmp = line_num;
@@ -179,7 +188,7 @@ void swap_line(struct new_line* cur_line, char commands[16]){
     line_num = line_tmp;
 }
 
-void change_line(struct new_line** cur_line, long amount){
+void change_line(struct text_line** cur_line, long amount){
     
     while( amount != 0 )
     {
@@ -217,8 +226,8 @@ void change_line(struct new_line** cur_line, long amount){
 int edit(void)
 {
     char commands[16] = {0};
-    struct new_line* buff = NULL;
-    struct new_line* cur_line = head;
+    struct text_line* buff = NULL;
+    struct text_line* cur_line = head;
     
     do{
         fgets(commands, 16, stdin);
@@ -256,14 +265,14 @@ int edit(void)
                 fgets(cur_line->text, BUFSIZ, stdin);
                 break;
             case 'a':/*append*/
-                buff = calloc(1, sizeof(struct new_line));
+                buff = calloc(1, sizeof(struct text_line));
                 if(!buff){ exit(errno); }
                 
                 fgets(buff->text, BUFSIZ, stdin);
                 insert_line(cur_line, cur_line->next, buff);
                 change_line(&cur_line, 1);
                 break;
-            case 'd':/*delete*/
+            case 'd':
                 delete_line(&cur_line, commands);
                 break;
                 
@@ -273,7 +282,7 @@ int edit(void)
                 break;
             case 'v':/*paste clipboard*/
                 if(commands[1] != 'w'){
-                    buff = calloc(1, sizeof(struct new_line));
+                    buff = calloc(1, sizeof(struct text_line));
                     if(!buff){ exit(errno); }
                 
                     strncpy(buff->text, clipboard, BUFSIZ);
@@ -286,8 +295,6 @@ int edit(void)
             case 's':/*swap*/
                 swap_line(cur_line, commands);
                 break;
-            
-                
                 
             case 'l':/*next line*/
                 change_line(&cur_line, 1);
@@ -299,13 +306,12 @@ int edit(void)
         
     } while( commands[0] != 'q');
     
-    
     return 0;
 }
 
-struct new_line* new_line(struct new_line* in)
+struct text_line* new_line(struct text_line* in)
 {
-    struct new_line* tmp = calloc( 1, sizeof(struct new_line) );
+    struct text_line* tmp = calloc( 1, sizeof(struct text_line) );
     if( !tmp ){ exit(errno); }
     
     tmp->prev = in;
@@ -314,7 +320,7 @@ struct new_line* new_line(struct new_line* in)
     return tmp;
 }
 
-void jump_line(struct new_line** cur_line, char commands[16]){
+void jump_line(struct text_line** cur_line, char commands[16]){
     long line = 0;
     
     if( commands[1] != '+' && commands[1] != '-' ){
@@ -335,11 +341,11 @@ void jump_line(struct new_line** cur_line, char commands[16]){
     }
 }
 
-int delete_line(struct new_line** cur_line, char commands[16])
+int delete_line(struct text_line** cur_line, char commands[16])
 {
-    struct new_line* buff = NULL;
-    struct new_line* left = NULL;
-    struct new_line* right = NULL;
+    struct text_line* buff = NULL;
+    struct text_line* left = NULL;
+    struct text_line* right = NULL;
     long number = 0;
     
     number = read_number(1, commands);
@@ -350,7 +356,7 @@ int delete_line(struct new_line** cur_line, char commands[16])
     
     if( (*cur_line)->next ){ buff = (*cur_line)->next; }else
     if( (*cur_line)->prev ){ buff = (*cur_line)->prev; }else{
-        buff = calloc( 1, sizeof(struct new_line) );
+        buff = calloc( 1, sizeof(struct text_line) );
         if( !buff ){ exit(errno); }
     }
     
@@ -374,6 +380,7 @@ int delete_line(struct new_line** cur_line, char commands[16])
     return 0;
 }
 
+/*Literally used once, thought I'd use it more, may get rid of it entirely*/
 long read_number(unsigned start, char commands[16]){
     unsigned i = 0;
     long number = 0;
@@ -384,7 +391,7 @@ long read_number(unsigned start, char commands[16]){
     return number;
 }
 
-int insert_line(struct new_line* left, struct new_line* right, struct new_line* insert)
+int insert_line(struct text_line* left, struct text_line* right, struct text_line* insert)
 {
     if( insert == NULL ){ return -1; } 
     
@@ -404,7 +411,7 @@ int insert_line(struct new_line* left, struct new_line* right, struct new_line* 
 void init_file(void)
 {
     long f_size = 0, f_pos = 0;
-    struct new_line* tmp = calloc(1, sizeof(struct new_line));
+    struct text_line* tmp = calloc(1, sizeof(struct text_line));
     if( !tmp ){ exit(errno); }
     
     head = tmp;
@@ -416,7 +423,7 @@ void init_file(void)
     
     
     fgets( tmp->text, BUFSIZ, f_in );
-    if(tmp->text[0] == '\0'){
+    if(tmp->text[0] == '\0'){/*hoping this makes lines actually have a newline*/
         tmp->text[0] = '\n';
         tmp->text[1] = '\0';
     }
