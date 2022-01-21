@@ -1,0 +1,97 @@
+<DOCTYPE=HTML5>
+<html>
+    <head>
+        <title>Atie's ED manual</title>
+    </head>
+    
+    <body>
+    <div style="background-color:light-grey;
+                color:black;
+                padding:15px;
+                border:5px outset grey;">
+        <h2>./a.out [filename]</h2>
+        
+        <h2>Usage</h2>
+        <p>
+        If a filename isn't specified, you will be asked to fill it in yourself. If the file doesn't exist the program will terminate.<br>
+        After that you will be shown an empty terminal.
+        </p>
+        
+        
+        <h2>Commands</h2>
+        
+        <h3>p[count][s][n]</h3>
+        <p>
+        Prints out <i>count</i> lines. If no amount is specified only the current line will be printed.<br>
+        If an <i>'s'</i> is present in the print command, it will print the surrounding lines (count times in each direction).<br>
+        If an <i>'n'</i> is present in the print command, it will add the line numbers to each line printed.
+        </p>
+        
+        <h3>pp</h3>
+        <p>
+        Toggles autoprint, which will automatically print the current line when navigating through the file.
+        </p>
+        
+        <h3>n</h3>
+        <p>
+        Prints the current line number.
+        </p>
+        
+        <h3>nn</h3>
+        <p>
+        Toggles automatic line numbering when printing out lines.
+        </p>
+        
+        <h3>w</h3>
+        <p>
+        <u>Overwrites</u> the current line of the file with the input from stdin.
+        </p>
+        
+        <h3>a</h3>
+        <p>
+        Appends a new line after the current line and writes stdin into that line.
+        </p>
+        
+        <h3>d[number]</h3>
+        <p>
+        Deletes the current line, unless <i>number</i> is specified. When <i>number</i> is specified it will delete the line at that number.
+        </p>
+        
+        <h3>s[line1]&amp;[line2]</h3>
+        <p>
+        Switches <i>line1</i> and <i>line2</i>. If no lines are specified it will switch the current line with the next one.<br>
+        If only <i>line1</i> is specified it will switch the current line with <i>line1</i>.
+        The &amp; sign is necesarry for switching with the second line.
+        </p>
+        
+        <h3>c</h3>
+        <p>
+        Copies the current line.
+        </p>
+        
+        <h3>v[w]</h3>
+        <p>
+        Pastes the line currently in the clipboard to a new line. If <i>w</i> is present it will overwrite the current line.
+        </p>
+        
+        <h3>j[+/-][number]</h3>
+        <p>
+        Jump to the specified line. If + or - are specified it will jump to that line relative to the current line.
+        </p>
+        
+        <h3>[k/l]</h3>
+        <p>
+        Moves to the next line <i>'l'</i> or the previous line <i>'k'</i>.
+        </p>
+        
+        <h3>q</h3>
+        <p>
+        Quits the program and writes the contents to the specified file.
+        </p>
+        
+    <footer> No official github present yet </footer>
+    </div>
+    
+    
+    </body>
+</html>
